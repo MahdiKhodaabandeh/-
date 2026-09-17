@@ -1,0 +1,30 @@
+name: Send daily Shamsi occasions
+
+on:
+  schedule:
+    # 04:30 UTC = 08:00 Asia/Tehran (Iran has used a fixed UTC+3:30
+    # offset, no DST, since 2022). Adjust if you want a different time.
+    - cron: "30 4 * * *"
+  workflow_dispatch: {}   # lets you trigger it manually from the Actions tab
+
+jobs:
+  send-occasions:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Send today's occasions
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          TIMEZONE: Asia/Tehran
+        run: python3 shamsi_occasions_bot.py --once
